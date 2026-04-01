@@ -1,0 +1,9 @@
+{
+  "yaml.schemas": {
+  "python.defaultInterpreterPath": "D:/Studium/Module/HackingMitPythonAufgabe/.venv/Scripts/python.exe",
+    "https://taskfile.dev/schema.json": [
+      "**/Taskfile.yml",
+      "./path/to/any/other/taskfile.yml"
+    ]
+  }
+}

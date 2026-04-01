@@ -1,0 +1,105 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+
+version: "3"
+
+vars:
+  VENV: .venv
+  PYTHON: py
+  PY: "{{.VENV}}/Scripts/python.exe"
+  PIP: "{{.PY}} -m pip"
+  SRC_DIR : "."
+tasks:
+  setup_python:
+    desc: Create venv and prepare pip
+    cmds:
+      - set e #Task aboard if error occured
+      - echo "Checking Python Version"
+      - "{{.PYTHON}} --version"
+
+      - |
+        if [ ! -d "{{.VENV}}" ]; then
+          echo "📦 Creating virtual environment"
+          {{.PYTHON}} -m venv {{.VENV}}
+
+          source {{.VENV}}/bin/activate
+        else
+          echo "✅ Virtual environment exists, skipping creation"
+        fi
+        
+      - echo "Upgrading pip"
+      - "{{.PIP}} install --upgrade pip"
+    silent: true
+
+  install_dev:
+    desc: Install dev dependencies
+    cmds:
+      - task: setup_python
+      - echo "Installing dev dependencies"
+      - |
+        if [ -f requirements_dev.txt ]; then
+          {{.PIP}} install -r requirements_dev.txt
+        else
+          echo "No requirements_dev.txt found"
+        fi
+    silent: true
+
+  install_prod:
+    desc: Install production dependencies
+    cmds:
+      - task: setup_python
+      - echo "Installing production dependencies"
+      - |
+        if [ -f requirements.txt ]; then
+          {{.PIP}} install -r requirements.txt
+        else
+          echo "No requirements.txt found"
+        fi
+    silent: true
+
+  activate_venv:
+    desc: Set VSCode Python interpreter to venv
+    cmds:
+      - echo "Setting VSCode virtual environment"
+      - source .venv/Scripts/activate
+    silent: true
+
+  deactivate_venv:
+    desc: Deactivate the virtual environment (Git Bash / Linux/macOS)
+    cmds:
+      - echo "🔹 Deactivating virtual environment..."
+      - deactivate || echo "No active virtual environment found"
+    silent: true
+
+  run_dev:
+    desc: Start main.py in virtual environment
+    deps: [install_dev]
+    cmds:
+      - echo "📦 Running isort (sorting imports)"
+      - "{{.PY}} -m isort {{.SRC_DIR}}"
+
+      - echo "🧹 Running Black (formatting)"
+      - "{{.PY}} -m black {{.SRC_DIR}}"
+
+      - echo "🔍 Running Ruff check"
+      - "{{.PY}} -m ruff check ."
+
+      - echo "🔍 Running Ruff format"
+      - "{{.PY}} -m ruff format ."
+
+      - echo "📝 Running MyPy (type checks)"
+      - "{{.PY}} -m mypy {{.SRC_DIR}}"
+
+      - echo "🧪 Running Pytest"
+      - "{{.PY}} -m pytest"
+
+      - echo "🚀 All checks passed, running main.py"
+      - "{{.PY}} main.py"
+    silent: true
+  
+  run:
+    desc: Start main.py in virtual environment
+    deps: [install_prod]
+    cmds:
+      - echo "🚀 Running main.py"
+      - "{{.PY}} main.py"
+    silent: true
