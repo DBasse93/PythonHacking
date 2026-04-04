@@ -92,14 +92,14 @@ tasks:
       - echo "🧪 Running Pytest"
       - "{{.PY}} -m pytest"
 
-      - echo "🚀 All checks passed, running main.py"
-      - "{{.PY}} main.py"
+      - echo "🚀 All checks passed, running app.py"
+      - "flask app run"
     silent: true
   
   run:
     desc: Start main.py in virtual environment
     deps: [install_prod]
     cmds:
-      - echo "🚀 Running main.py"
-      - "{{.PY}} main.py"
+      - echo "🚀 Running app.py"
+      - "flask app run"
     silent: true

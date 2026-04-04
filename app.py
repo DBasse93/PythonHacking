@@ -1,7 +1,7 @@
-from app import calc
+from frontend import app
 
 
-def test_calc_basic() -> None:
+def calc() -> None:
     """
     Tests the calc function with normal integer values.
 
@@ -13,10 +13,5 @@ def test_calc_basic() -> None:
     assert calc(10, 5) == 15
 
 
-def test_calc_types() -> None:
-    """
-    Tests that calc returns an integer.
-
-    Ensures that the return type of calc is always int.
-    """
-    assert isinstance(calc(2, 3), int)
+if __name__ == "__main__":
+    app.run(debug=True)
