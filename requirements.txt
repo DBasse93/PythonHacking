@@ -1,3 +1,4 @@
 Flask
 types-Flask
 requests
+email_validator 

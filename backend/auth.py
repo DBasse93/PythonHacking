@@ -1,6 +1,7 @@
 import functools
 
-from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
+from email_validator import EmailNotValidError, validate_email
+from flask import Blueprint, flash, g, make_response, redirect, render_template, request, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from backend.db import get_db
@@ -13,19 +14,28 @@ def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        email = request.form["email"]
         db = get_db()
         error = None
+
+        try:
+            valid = validate_email(email)
+            email = valid.email  # normalisierte Version
+        except EmailNotValidError as e:
+            error = str(e)
 
         if not username:
             error = "Username is required."
         elif not password:
             error = "Password is required."
+        elif not email:
+            error = "Email is required."
 
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                    "INSERT INTO user (username, password, email) VALUES (?, ?, ?)",
+                    (username, generate_password_hash(password), email),
                 )
                 db.commit()
             except db.IntegrityError:
@@ -45,7 +55,8 @@ def login():
         password = request.form["password"]
         db = get_db()
         error = None
-        user = db.execute("SELECT * FROM user WHERE username = ?", (username,)).fetchone()
+        user = db.execute(
+            "SELECT * FROM user WHERE username = ?", (username,)).fetchone()
 
         if user is None:
             error = "Incorrect username."
@@ -53,9 +64,17 @@ def login():
             error = "Incorrect password."
 
         if error is None:
-            session.clear()
-            session["user_id"] = user["id"]
-            return redirect(url_for("dashboard.home"))
+            resp = make_response(redirect(url_for("dashboard.home")))
+
+            # 👉 Cookie setzen (z. B. user_id)
+            resp.set_cookie(
+                "user_id",
+                str(user["id"]),
+                httponly=True,  # kein JS-Zugriff
+                secure=True,  # nur HTTPS
+                samesite="Lax",  # CSRF-Schutz
+            )
+            return resp
 
         flash(error)
 
@@ -64,7 +83,7 @@ def login():
 
 @bp.before_app_request
 def load_logged_in_user():
-    user_id = session.get("user_id")
+    user_id = request.cookies.get("user_id")
 
     if user_id is None:
         g.user = None
@@ -74,8 +93,12 @@ def load_logged_in_user():
 
 @bp.route("/logout")
 def logout():
-    session.clear()
-    return redirect(url_for("index"))
+    resp = make_response(redirect(url_for("index")))
+
+    # 👉 Cookie löschen
+    resp.delete_cookie("user_id")
+
+    return resp
 
 
 def login_required(view):
