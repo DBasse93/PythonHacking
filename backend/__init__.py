@@ -9,7 +9,7 @@ import os
 
 # from flask import Flask, redirect, render_template, request, url_for
 # from flask.typing import ResponseReturnValue
-from flask import Flask
+from flask import Flask, redirect, url_for
 
 
 def create_app(test_config: None = None) -> Flask:
@@ -31,10 +31,6 @@ def create_app(test_config: None = None) -> Flask:
     os.makedirs(app.instance_path, exist_ok=True)
 
     # a simple page that says hello
-    @app.route("/hello")
-    def hello() -> str:
-        return "Hello, World!"
-
     from . import db
 
     db.init_app(app)
@@ -46,49 +42,14 @@ def create_app(test_config: None = None) -> Flask:
     from . import blog
 
     app.register_blueprint(blog.bp)
-    app.add_url_rule("/", endpoint="index")
+
+    from . import dashboard
+
+    app.register_blueprint(dashboard.bp)
+
+    @app.route("/")
+    def index():
+        # Weiterleitung zum Login
+        return redirect(url_for("auth.login"))
 
     return app
-
-
-# @app.route("/")
-# def home() -> ResponseReturnValue:
-#     return render_template("home.html")
-
-
-# @app.route("/login", methods=["GET", "POST"])
-# def login() -> ResponseReturnValue:
-#     error = None
-#     if request.method == 'POST':
-#         if valid_login(request.form['username'],
-#                        request.form['password']):
-#             print(f"{theuser},{thepass}")
-#             return log_the_user_in(request.form['username'])
-#         else:
-#             error = 'Invalid username/password'
-#     # the code below is executed if the request method
-#     # was GET or the credentials were invalid
-#     return render_template('login.html', error=error)
-
-
-# @app.route("/register", methods=["GET", "POST"])
-# def register() -> ResponseReturnValue:
-#     if request.method == "POST":
-#         theuser = request.form.get("username")
-#         theemail = request.form.get("email")
-#         thepass1 = request.form.get("password1")
-#         thepass2 = request.form.get("password2")
-#         print(f"{theuser},{theemail},{thepass1},{thepass2}")
-
-#         return redirect(url_for("register"))
-#     return render_template("register.html")
-
-
-# @app.route("/tickets")
-# def tickets() -> ResponseReturnValue:
-#     dbitems = [
-#         {"id": 1, "priority": 2, "username": "Mark", "title": "something broken"},
-#         {"id": 2, "priority": 1, "username": "Natalie", "title": "nothing to do"},
-#         {"id": 3, "priority": 3, "username": "Luke", "title": "looks not good"},
-#     ]
-#     return render_template("tickets.html", items=dbitems)

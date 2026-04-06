@@ -1,0 +1,60 @@
+{% extends 'base_after_login.html' %}
+
+{% block content %}
+<div class="dashboard container my-4">
+
+    <div class="card p-4 mb-4 shadow-sm">
+        <h2 class="mb-3">Koordinaten</h2>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="latitude" class="form-label">Breite eingeben</label>
+                <input type="number" class="form-control is-valid" step="any" name="latitude" value="{{ latitude }}" placeholder="z.B. 52.37" step="0.01" 
+                    min="-90" 
+                    max="90"  required>
+
+            </div>
+
+            <div class="mb-3">
+                <label for="longitude" class="form-label">Länge eingeben</label>
+                <input type="number" class="form-control is-valid" step="any" name="longitude" value="{{ longitude }}" placeholder="z.B. 9.72" step="0.01" 
+                    min="-180" 
+                    max="180" required>
+            </div>
+
+            <button class="btn btn-primary w-100" type="submit">abrufen</button>
+        </form>
+    </div>
+
+    {% if temperature is not none %}
+    <div class="card p-4 shadow-sm">
+        <h2 class="mb-3">Wetter in {{ latitude }} | {{ longitude }}</h2>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="weather-item p-2 border rounded">🌡️ Temperatur: <span class="fw-bold text-primary">{{ temperature }}°C</span></div>
+            </div>
+            <div class="col-md-6">
+                <div class="weather-item p-2 border rounded">💨 Windgeschwindigkeit: <span class="fw-bold text-primary">{{ windspeed }} km/h</span></div>
+            </div>
+            <div class="col-md-6">
+                <div class="weather-item p-2 border rounded">⛅ Wettercode: <span class="fw-bold text-primary">{{ weathercode }}</span></div>
+            </div>
+            <div class="col-md-6">
+                <div class="weather-item p-2 border rounded">🕒 Zeit: <span class="fw-bold text-primary">{{ time }}</span></div>
+            </div>
+        </div>
+    </div>
+    <form method="POST" action="{{ url_for('dashboard.save_weather') }}">
+    <input type="hidden" name="latitude" value="{{ latitude }}">
+    <input type="hidden" name="longitude" value="{{ longitude }}">
+    <input type="hidden" name="temperature" value="{{ temperature }}">
+    <input type="hidden" name="windspeed" value="{{ windspeed }}">
+    <input type="hidden" name="weathercode" value="{{ weathercode }}">
+    <input type="hidden" name="time" value="{{ time }}">
+    <button type="submit" class="btn btn-success mt-3 w-100">Wetter in Datenbank speichern</button>
+    </form>
+    {% else %}
+    <div class="alert alert-warning shadow-sm">⚠️ Wetterdaten konnten nicht geladen werden.</div>
+    {% endif %}
+
+</div>
+{% endblock %}

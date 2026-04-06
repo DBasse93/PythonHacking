@@ -1,0 +1,19 @@
+{% extends 'base_after_login.html' %}
+
+{% block content %}
+<div class="dashboard container my-4">
+    <h1>Gespeicherte Wetterdaten</h1>
+
+    {% if weather_list %}
+        <ul>
+        {% for w in weather_list %}
+            <li>
+                🌡️ {{ w['temperature'] }}°C | 💨 {{ w['windspeed'] }} km/h | ⛅ {{ w['weathercode'] }} | 🕒 {{ w['time'] }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>⚠️ Es sind keine Wetterdaten gespeichert.</p>
+    {% endif %}
+</div>
+{% endblock %}

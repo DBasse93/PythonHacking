@@ -70,6 +70,14 @@ tasks:
       - deactivate || echo "No active virtual environment found"
     silent: true
 
+  init_db:
+    desc: Initialize database
+    deps: [install_dev]
+    cmds:
+      - echo "🗄️ Initialisiere Datenbank"
+      - flask --app app init-db
+    silent: true
+
   run_dev:
     desc: Start app.py in virtual environment
     deps: [install_dev]
@@ -94,6 +102,7 @@ tasks:
 
       - echo "********************************************************************************************************"
       - echo "🚀 All checks passed, running app.py"
+
       - flask --app app run --debug
     silent: true
   
