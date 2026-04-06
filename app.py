@@ -1,17 +1,34 @@
-from frontend import app
+"""
+Application entry point.
+
+Detailed description:
+    This module provides the main entry point for the application.
+    Currently, it defines a single utility function `calc` that adds two
+    integers.
+    You can expand this module with additional functions or classes as needed.
+"""
+
+from backend import create_app
 
 
-def calc() -> None:
+def calc(x: int, y: int) -> int:
     """
-    Tests the calc function with normal integer values.
+    Calculate the sum of two integers.
 
-    Checks positive, negative, and zero values.
+    This function takes two integer inputs and returns their sum.
+    It does not perform any type conversion or error handling.
+
+    Args:
+        x (int): The first number to add.
+        y (int): The second number to add.
+
+    Returns:
+        int: The sum of x and y.
     """
-    assert calc(2, 3) == 5
-    assert calc(0, 0) == 0
-    assert calc(-1, 1) == 0
-    assert calc(10, 5) == 15
+    return x + y
 
+
+app = create_app()
 
 if __name__ == "__main__":
     app.run(debug=True)

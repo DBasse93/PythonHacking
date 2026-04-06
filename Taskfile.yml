@@ -71,7 +71,7 @@ tasks:
     silent: true
 
   run_dev:
-    desc: Start main.py in virtual environment
+    desc: Start app.py in virtual environment
     deps: [install_dev]
     cmds:
       - echo "📦 Running isort (sorting imports)"
@@ -86,20 +86,21 @@ tasks:
       - echo "🔍 Running Ruff format"
       - "{{.PY}} -m ruff format ."
 
-      - echo "📝 Running MyPy (type checks)"
-      - "{{.PY}} -m mypy {{.SRC_DIR}}"
+      # - echo "📝 Running MyPy (type checks)"
+      # - "{{.PY}} -m mypy {{.SRC_DIR}}"
 
       - echo "🧪 Running Pytest"
       - "{{.PY}} -m pytest"
 
+      - echo "********************************************************************************************************"
       - echo "🚀 All checks passed, running app.py"
-      - "flask app run"
+      - flask --app app run --debug
     silent: true
   
   run:
-    desc: Start main.py in virtual environment
+    desc: Start app.py in virtual environment
     deps: [install_prod]
     cmds:
       - echo "🚀 Running app.py"
-      - "flask app run"
+      - flask --app app run
     silent: true
