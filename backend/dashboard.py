@@ -1,3 +1,5 @@
+import time
+
 import requests
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for
 
@@ -13,19 +15,31 @@ def home():
     lat = 52.37
     lon = 9.72
     weather = {}
+    error = None
 
     if request.method == "POST":
         lat = request.form.get("latitude", type=float)
         lon = request.form.get("longitude", type=float)
 
-    try:
-        url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true"
-        response = requests.get(url)
-        response.raise_for_status()
-        data = response.json()
-        weather = data.get("current_weather", {})
-    except requests.RequestException as e:
-        print("Fehler beim Abrufen der Wetterdaten:", e)
+        url = "https://api.open-meteo.com/v1/forecast"
+        params = {"latitude": lat, "longitude": lon, "current_weather": True}
+
+        for attempt in range(3):
+            try:
+                response = requests.get(url, params=params, timeout=3)
+                response.raise_for_status()
+                data = response.json()
+                weather = data.get("current_weather", {})
+                break  # Erfolg → Schleife beenden
+
+            except requests.RequestException as e:
+                print(f"Versuch {attempt + 1} fehlgeschlagen: {e}")
+                error = e
+                time.sleep(2)
+
+        else:
+            # Wird ausgeführt, wenn alle 3 Versuche fehlschlagen
+            error = f"{error}: Wetterdaten konnten nicht geladen werden."
 
     return render_template(
         "dashboard/home.html",
@@ -35,6 +49,7 @@ def home():
         windspeed=weather.get("windspeed"),
         weathercode=weather.get("weathercode"),
         time=weather.get("time"),
+        error=error,
     )
 
 

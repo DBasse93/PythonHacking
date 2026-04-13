@@ -43,6 +43,10 @@ def create_app(test_config: None = None) -> Flask:
 
     app.register_blueprint(dashboard.bp)
 
+    from . import blog
+
+    app.register_blueprint(blog.bp)
+
     @app.route("/")
     def index():
         # Weiterleitung zum Login

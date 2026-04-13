@@ -103,7 +103,7 @@ tasks:
       - echo "********************************************************************************************************"
       - echo "🚀 All checks passed, running app.py"
 
-      - flask --app app run --debug
+      - "{{.PY}} -m flask --app app run --debug"
     silent: true
   
   run:
@@ -111,5 +111,5 @@ tasks:
     deps: [install_prod]
     cmds:
       - echo "🚀 Running app.py"
-      - flask --app app run
+      - "{{.PY}} -m flask --app app run"
     silent: true
